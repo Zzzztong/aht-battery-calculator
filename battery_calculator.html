@@ -211,8 +211,8 @@ svg.chart { width: 100%; height: 100%; }
     <p style="font-size:0.82rem;color:var(--text2);margin-bottom:12px;">Constant duty cycle — same sampling rate day and night. Simplest firmware logic.</p>
     <div class="grid grid-2">
       <div>
-        <div class="field"><label>PPG ON Duration<span class="zh">采集时长</span></label><input type="range" id="a1on" min="10" max="120" value="60" step="5"><span class="val" id="a1on_v">60</span><span class="unit">s</span></div>
-        <div class="field"><label>Cycle Interval<span class="zh">采集间隔</span></label><input type="range" id="a1cycle" min="30" max="600" value="300" step="30"><span class="val" id="a1cycle_v">300</span><span class="unit">s</span></div>
+        <div class="field"><label>PPG ON Duration<span class="zh">采集时长</span></label><input type="range" id="a1on" min="0.5" max="2" value="1" step="0.5"><span class="val" id="a1on_v">1</span><span class="unit">min</span></div>
+        <div class="field"><label>Cycle Interval<span class="zh">采集间隔</span></label><input type="range" id="a1cycle" min="0.5" max="10" value="5" step="0.5"><span class="val" id="a1cycle_v">5</span><span class="unit">min</span></div>
         <div class="field"><label>Continuous Mode<span class="zh">连续模式</span></label><input type="checkbox" id="a1cont"><span class="val">LED always-on</span></div>
       </div>
       <div>
@@ -231,14 +231,14 @@ svg.chart { width: 100%; height: 100%; }
     <div class="grid grid-2">
       <div>
         <h3>Daytime / 白天</h3>
-        <div class="field"><label>ON Duration</label><input type="range" id="a2dayOn" min="10" max="120" value="60" step="5"><span class="val" id="a2dayOn_v">60</span><span class="unit">s</span></div>
-        <div class="field"><label>Cycle Interval</label><input type="range" id="a2dayCycle" min="30" max="600" value="300" step="30"><span class="val" id="a2dayCycle_v">300</span><span class="unit">s</span></div>
+        <div class="field"><label>ON Duration</label><input type="range" id="a2dayOn" min="0.5" max="2" value="1" step="0.5"><span class="val" id="a2dayOn_v">1</span><span class="unit">min</span></div>
+        <div class="field"><label>Cycle Interval</label><input type="range" id="a2dayCycle" min="0.5" max="10" value="5" step="0.5"><span class="val" id="a2dayCycle_v">5</span><span class="unit">min</span></div>
         <div class="field"><label>Continuous</label><input type="checkbox" id="a2dayCont"></div>
       </div>
       <div>
         <h3>Nighttime / 夜间</h3>
-        <div class="field"><label>ON Duration</label><input type="range" id="a2nightOn" min="10" max="120" value="60" step="5"><span class="val" id="a2nightOn_v">60</span><span class="unit">s</span></div>
-        <div class="field"><label>Cycle Interval</label><input type="range" id="a2nightCycle" min="30" max="600" value="120" step="30"><span class="val" id="a2nightCycle_v">120</span><span class="unit">s</span></div>
+        <div class="field"><label>ON Duration</label><input type="range" id="a2nightOn" min="0.5" max="2" value="1" step="0.5"><span class="val" id="a2nightOn_v">1</span><span class="unit">min</span></div>
+        <div class="field"><label>Cycle Interval</label><input type="range" id="a2nightCycle" min="0.5" max="10" value="2" step="0.5"><span class="val" id="a2nightCycle_v">2</span><span class="unit">min</span></div>
         <div class="field"><label>Continuous</label><input type="checkbox" id="a2nightCont"></div>
       </div>
     </div>
@@ -253,14 +253,14 @@ svg.chart { width: 100%; height: 100%; }
     <div class="grid grid-2">
       <div>
         <h3>Active State / 活动状态</h3>
-        <div class="field"><label>ON Duration</label><input type="range" id="a3activeOn" min="10" max="120" value="60" step="5"><span class="val" id="a3activeOn_v">60</span><span class="unit">s</span></div>
-        <div class="field"><label>Cycle Interval</label><input type="range" id="a3activeCycle" min="30" max="300" value="120" step="30"><span class="val" id="a3activeCycle_v">120</span><span class="unit">s</span></div>
+        <div class="field"><label>ON Duration</label><input type="range" id="a3activeOn" min="0.5" max="2" value="1" step="0.5"><span class="val" id="a3activeOn_v">1</span><span class="unit">min</span></div>
+        <div class="field"><label>Cycle Interval</label><input type="range" id="a3activeCycle" min="0.5" max="5" value="2" step="0.5"><span class="val" id="a3activeCycle_v">2</span><span class="unit">min</span></div>
         <div class="field"><label>Continuous during activity</label><input type="checkbox" id="a3activeCont"></div>
       </div>
       <div>
         <h3>Idle State / 静止状态</h3>
-        <div class="field"><label>ON Duration</label><input type="range" id="a3idleOn" min="10" max="120" value="30" step="5"><span class="val" id="a3idleOn_v">30</span><span class="unit">s</span></div>
-        <div class="field"><label>Cycle Interval</label><input type="range" id="a3idleCycle" min="60" max="600" value="300" step="30"><span class="val" id="a3idleCycle_v">300</span><span class="unit">s</span></div>
+        <div class="field"><label>ON Duration</label><input type="range" id="a3idleOn" min="0.5" max="2" value="0.5" step="0.5"><span class="val" id="a3idleOn_v">0.5</span><span class="unit">min</span></div>
+        <div class="field"><label>Cycle Interval</label><input type="range" id="a3idleCycle" min="1" max="10" value="5" step="0.5"><span class="val" id="a3idleCycle_v">5</span><span class="unit">min</span></div>
       </div>
     </div>
     <h3>Activity Profile / 活动比例</h3>
@@ -281,19 +281,19 @@ svg.chart { width: 100%; height: 100%; }
       <div>
         <h3>Full Power (100%→T1)</h3>
         <div class="field"><label>Threshold<span class="zh">阈值</span></label><input type="number" id="a4t1" value="50" min="10" max="90" step="5"><span class="unit">%</span></div>
-        <div class="field"><label>ON Duration</label><input type="range" id="a4fullOn" min="10" max="120" value="60" step="5"><span class="val" id="a4fullOn_v">60</span><span class="unit">s</span></div>
-        <div class="field"><label>Cycle Interval</label><input type="range" id="a4fullCycle" min="30" max="600" value="180" step="30"><span class="val" id="a4fullCycle_v">180</span><span class="unit">s</span></div>
+        <div class="field"><label>ON Duration</label><input type="range" id="a4fullOn" min="0.5" max="2" value="1" step="0.5"><span class="val" id="a4fullOn_v">1</span><span class="unit">min</span></div>
+        <div class="field"><label>Cycle Interval</label><input type="range" id="a4fullCycle" min="0.5" max="10" value="3" step="0.5"><span class="val" id="a4fullCycle_v">3</span><span class="unit">min</span></div>
       </div>
       <div>
         <h3>Reduced (T1→T2)</h3>
         <div class="field"><label>Threshold<span class="zh">阈值</span></label><input type="number" id="a4t2" value="20" min="5" max="80" step="5"><span class="unit">%</span></div>
-        <div class="field"><label>ON Duration</label><input type="range" id="a4redOn" min="10" max="120" value="30" step="5"><span class="val" id="a4redOn_v">30</span><span class="unit">s</span></div>
-        <div class="field"><label>Cycle Interval</label><input type="range" id="a4redCycle" min="60" max="600" value="300" step="30"><span class="val" id="a4redCycle_v">300</span><span class="unit">s</span></div>
+        <div class="field"><label>ON Duration</label><input type="range" id="a4redOn" min="0.5" max="2" value="0.5" step="0.5"><span class="val" id="a4redOn_v">0.5</span><span class="unit">min</span></div>
+        <div class="field"><label>Cycle Interval</label><input type="range" id="a4redCycle" min="1" max="10" value="5" step="0.5"><span class="val" id="a4redCycle_v">5</span><span class="unit">min</span></div>
       </div>
       <div>
         <h3>Critical (&lt;T2)</h3>
-        <div class="field"><label>ON Duration</label><input type="range" id="a4critOn" min="10" max="120" value="30" step="5"><span class="val" id="a4critOn_v">30</span><span class="unit">s</span></div>
-        <div class="field"><label>Cycle Interval</label><input type="range" id="a4critCycle" min="120" max="600" value="600" step="30"><span class="val" id="a4critCycle_v">600</span><span class="unit">s</span></div>
+        <div class="field"><label>ON Duration</label><input type="range" id="a4critOn" min="0.5" max="2" value="0.5" step="0.5"><span class="val" id="a4critOn_v">0.5</span><span class="unit">min</span></div>
+        <div class="field"><label>Cycle Interval</label><input type="range" id="a4critCycle" min="2" max="10" value="10" step="0.5"><span class="val" id="a4critCycle_v">10</span><span class="unit">min</span></div>
       </div>
     </div>
     <div class="note">Battery-aware mode uses Day/Night Algo 2 settings as base, then scales down cycle interval at each tier. The chart below shows the depletion curve.</div>
@@ -325,6 +325,25 @@ svg.chart { width: 100%; height: 100%; }
     </thead>
     <tbody id="compBody"></tbody>
   </table>
+  </div>
+</div>
+
+<!-- ===== SLEEP STAGING PRECISION CEILING ===== -->
+<div class="card section-gap">
+  <h2>Sleep Staging Capacity Loss / 睡眠分期采样损失
+    <small style="font-size:0.75rem;font-weight:400;color:var(--text2);margin-left:8px;">vs. continuous sampling · 相对于连续采样的损失 · MESA PSG n=12</small>
+  </h2>
+  <div style="font-size:0.82rem;color:var(--text2);margin-bottom:10px;">
+    以连续采样为基准（100%），当前采样间隔导致的检出能力损失 &nbsp;·&nbsp; Hardware-only bounds, independent of algorithm accuracy<br>
+    夜间设置 / Night: <strong id="sleepPrecAlgoLabel">—</strong> &nbsp;|&nbsp;
+    ON = <strong id="sleepPrecOn">—</strong> min &nbsp;|&nbsp;
+    周期 Cycle = <strong id="sleepPrecCycle">—</strong> min &nbsp;|&nbsp;
+    占空比 Duty = <strong id="sleepPrecDuty">—</strong>%
+  </div>
+  <div class="result-grid" id="sleepPrecCards"></div>
+  <div class="note" style="margin-top:10px;">
+    以上为<strong>纯硬件采样限制</strong>导致的损失，与算法本身准确率无关。基准为 24/7 连续采样（损失 = 0%）。
+    损失越小越好；红色表示该采样间隔下对应临床指标的检出能力已严重不足。
   </div>
 </div>
 
@@ -397,6 +416,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     tab.classList.add('active');
     $(tab.dataset.tab).classList.add('active');
+    updateSleepPrecision();
   });
 });
 
@@ -595,6 +615,137 @@ function simulateDepletion(avgCurrentUA) {
   return points;
 }
 
+// === Sleep Staging Precision Ceiling (MESA PSG, n=12) ===
+// Lookup table: MESA_CEIL[on_sec][cycle_sec] = metrics
+// Source: sleep_precision_analysis.py ceiling analysis
+const MESA_CEIL = {};
+[
+  {on:30,cy:60,  oa:0.9549,fa:0.9098,k:0.9171,d2:0.6997,d5:0.7508,tr:1.000},
+  {on:30,cy:120, oa:0.9170,fa:0.8893,k:0.8482,d2:0.4251,d5:0.5243,tr:0.499},
+  {on:30,cy:180, oa:0.8948,fa:0.8738,k:0.8074,d2:0.2684,d5:0.3824,tr:0.336},
+  {on:30,cy:240, oa:0.8783,fa:0.8609,k:0.7781,d2:0.2079,d5:0.3117,tr:0.254},
+  {on:30,cy:300, oa:0.8640,fa:0.8489,k:0.7538,d2:0.1811,d5:0.2578,tr:0.203},
+  {on:30,cy:360, oa:0.8520,fa:0.8386,k:0.7308,d2:0.1340,d5:0.2071,tr:0.161},
+  {on:30,cy:480, oa:0.8249,fa:0.8132,k:0.6799,d2:0.1084,d5:0.1604,tr:0.129},
+  {on:30,cy:600, oa:0.8186,fa:0.8091,k:0.6766,d2:0.0927,d5:0.1255,tr:0.105},
+  {on:60,cy:120, oa:0.9500,fa:0.8999,k:0.9091,d2:0.6492,d5:0.7099,tr:0.744},
+  {on:60,cy:180, oa:0.9243,fa:0.8865,k:0.8618,d2:0.4451,d5:0.5409,tr:0.495},
+  {on:60,cy:240, oa:0.9014,fa:0.8686,k:0.8214,d2:0.3391,d5:0.4339,tr:0.372},
+  {on:60,cy:300, oa:0.8818,fa:0.8522,k:0.7855,d2:0.2823,d5:0.3591,tr:0.307},
+  {on:60,cy:360, oa:0.8726,fa:0.8471,k:0.7687,d2:0.2076,d5:0.2869,tr:0.232},
+  {on:60,cy:480, oa:0.8397,fa:0.8167,k:0.7091,d2:0.1798,d5:0.2256,tr:0.185},
+  {on:60,cy:600, oa:0.8206,fa:0.8007,k:0.6778,d2:0.1458,d5:0.1824,tr:0.157},
+  {on:90,cy:120, oa:0.9775,fa:0.9097,k:0.9583,d2:0.8476,d5:0.8736,tr:1.000},
+  {on:90,cy:180, oa:0.9432,fa:0.8862,k:0.8968,d2:0.6067,d5:0.6748,tr:0.671},
+  {on:90,cy:240, oa:0.9224,fa:0.8758,k:0.8591,d2:0.4490,d5:0.5357,tr:0.496},
+  {on:90,cy:300, oa:0.9061,fa:0.8658,k:0.8287,d2:0.3740,d5:0.4530,tr:0.395},
+  {on:90,cy:360, oa:0.8885,fa:0.8513,k:0.7992,d2:0.2787,d5:0.3611,tr:0.314},
+  {on:90,cy:480, oa:0.8621,fa:0.8302,k:0.7478,d2:0.2300,d5:0.2769,tr:0.251},
+  {on:90,cy:600, oa:0.8430,fa:0.8152,k:0.7126,d2:0.1889,d5:0.2330,tr:0.200},
+  {on:120,cy:180,oa:0.9654,fa:0.8960,k:0.9374,d2:0.7707,d5:0.8104,tr:0.842},
+  {on:120,cy:240,oa:0.9430,fa:0.8860,k:0.8950,d2:0.5760,d5:0.6493,tr:0.621},
+  {on:120,cy:300,oa:0.9236,fa:0.8727,k:0.8628,d2:0.4605,d5:0.5423,tr:0.482},
+  {on:120,cy:360,oa:0.9032,fa:0.8548,k:0.8263,d2:0.3604,d5:0.4383,tr:0.395},
+  {on:120,cy:480,oa:0.8815,fa:0.8419,k:0.7837,d2:0.2985,d5:0.3446,tr:0.317},
+  {on:120,cy:600,oa:0.8561,fa:0.8201,k:0.7402,d2:0.2338,d5:0.2829,tr:0.241},
+].forEach(r => {
+  if (!MESA_CEIL[r.on]) MESA_CEIL[r.on] = {};
+  MESA_CEIL[r.on][r.cy] = {oa:r.oa, fa:r.fa, k:r.k, d2:r.d2, d5:r.d5, tr:r.tr};
+});
+
+const MESA_ON_KEYS = [30, 60, 90, 120];
+const MESA_CY_KEYS = [60, 120, 180, 240, 300, 360, 480, 600];
+
+function interpMesa(onSec, cycleSec) {
+  onSec    = Math.max(30,  Math.min(120, onSec));
+  cycleSec = Math.max(60,  Math.min(600, cycleSec));
+  if (onSec >= cycleSec) cycleSec = Math.min(600, onSec * 2);
+
+  const lo = arr => arr.filter(k => k <= onSec).pop()    || arr[0];
+  const hi = arr => arr.find(k => k >= onSec)            || arr[arr.length-1];
+  const lc = arr => arr.filter(k => k <= cycleSec).pop() || arr[0];
+  const hc = arr => arr.find(k => k >= cycleSec)         || arr[arr.length-1];
+
+  const on0 = lo(MESA_ON_KEYS), on1 = hi(MESA_ON_KEYS);
+  const cy0 = lc(MESA_CY_KEYS), cy1 = hc(MESA_CY_KEYS);
+  const tOn = on0 === on1 ? 0 : (onSec - on0) / (on1 - on0);
+  const tCy = cy0 === cy1 ? 0 : (cycleSec - cy0) / (cy1 - cy0);
+
+  function get(on, cy) {
+    if (MESA_CEIL[on] && MESA_CEIL[on][cy]) return MESA_CEIL[on][cy];
+    // fallback: nearest valid cycle for this on_sec
+    const valid = MESA_CY_KEYS.filter(k => k > on);
+    const near  = valid.reduce((a,b) => Math.abs(b-cy)<Math.abs(a-cy)?b:a, valid[0]);
+    return (MESA_CEIL[on] && MESA_CEIL[on][near]) ? MESA_CEIL[on][near] : null;
+  }
+
+  const q00=get(on0,cy0), q10=get(on1,cy0), q01=get(on0,cy1), q11=get(on1,cy1);
+  if (!q00) return null;
+
+  const lerp = (a,b,t) => a + t*(b-a);
+  const blerp = (k) => {
+    const v0 = lerp((q00||q10)[k], (q01||q00)[k], tCy);
+    const v1 = lerp((q10||q00)[k], (q11||q00)[k], tCy);
+    return lerp(v0, v1, tOn);
+  };
+  return { oa:blerp('oa'), fa:blerp('fa'), k:blerp('k'),
+           d2:blerp('d2'), d5:blerp('d5'), tr:blerp('tr') };
+}
+
+function getNightSamplingSettings() {
+  // Sleep staging is a nighttime-only activity.
+  // Always read Algo 2 Night settings regardless of active tab.
+  const onMin    = $v('a2nightOn');
+  const cycleMin = $v('a2nightCycle');
+  const label    = 'Algo 2 Night / 昼夜自适应·夜间';
+  return { onSec: onMin * 60, cycleSec: cycleMin * 60, label };
+}
+
+function updateSleepPrecision() {
+  const { onSec, cycleSec, label } = getNightSamplingSettings();
+  const duty = (onSec / cycleSec * 100).toFixed(1);
+  $('sleepPrecAlgoLabel').textContent = label;
+  $('sleepPrecOn').textContent   = (onSec / 60).toFixed(1);
+  $('sleepPrecCycle').textContent = (cycleSec / 60).toFixed(1);
+  $('sleepPrecDuty').textContent  = duty;
+
+  const m = interpMesa(onSec, cycleSec);
+  if (!m) { $('sleepPrecCards').innerHTML = '<em>Out of lookup range</em>'; return; }
+
+  // Show loss vs continuous (100%) baseline — hardware-only, algo-independent
+  const loss2  = 1 - m.d2;
+  const loss5  = 1 - m.d5;
+  const lossTr = 1 - m.tr;
+  const lossClass = v => v <= 0.30 ? 'pass' : v <= 0.60 ? 'warn' : 'fail';
+  const lossPct = v => '−' + (v * 100).toFixed(1) + '%';
+
+  $('sleepPrecCards').innerHTML = [
+    {
+      label: '短睡眠事件漏检 ≤ 2 min<br><small>Short Bout Miss Rate · 觉醒 / 短 N3</small>',
+      val:   lossPct(loss2),
+      unit:  `相当于仅检出 ${(m.d2*100).toFixed(0)}% 的短bout`,
+      c:     lossClass(loss2)
+    },
+    {
+      label: '短睡眠事件漏检 ≤ 5 min<br><small>Short Bout Miss Rate · 临床事件</small>',
+      val:   lossPct(loss5),
+      unit:  `相当于仅检出 ${(m.d5*100).toFixed(0)}% 的短bout`,
+      c:     lossClass(loss5)
+    },
+    {
+      label: '分期转变漏检率<br><small>Stage Transition Miss Rate</small>',
+      val:   lossPct(lossTr),
+      unit:  `转变点 ±1 epoch 内仅观测到 ${(m.tr*100).toFixed(0)}%`,
+      c:     lossClass(lossTr)
+    },
+  ].map(c => `
+    <div class="result-card ${c.c}" style="min-width:220px;">
+      <div class="label">${c.label}</div>
+      <div class="value" style="font-size:1.5rem;">${c.val}</div>
+      <div class="unit">${c.unit}</div>
+    </div>`).join('');
+}
+
 // === Precision & Auto-Tune ===
 const PRECISION_DUTIES  = [0.05, 0.10, 0.20, 0.33, 0.60];
 const PRECISION_LABELS  = ['Ultra-Low (5%)', 'Low (10%)', 'Medium (20%)', 'High (33%)', 'Ultra-High (60%)'];
@@ -675,12 +826,14 @@ function updateHWImpactPanel() {
 }
 
 function applyPrecisionToAlgos() {
-  const level = parseInt(document.querySelector('input[name="precision"]:checked')?.value ?? 2);
-  const duty  = $c('autoTune') ? getMaxAffordableDuty() : PRECISION_DUTIES[level];
-  const d     = Math.max(0.02, Math.min(1, duty));
+  const level  = parseInt(document.querySelector('input[name="precision"]:checked')?.value ?? 2);
+  const duty   = $c('autoTune') ? getMaxAffordableDuty() : PRECISION_DUTIES[level];
+  const d      = Math.max(0.02, Math.min(1, duty));
   const target = $('precisionTarget').value;
-  const onDur  = 30;
-  const snap   = v => Math.min(600, Math.max(30, Math.round(v / 30) * 30));
+
+  // All values in minutes; snap to nearest 0.5 min within [lo, hi]
+  const onDur = 0.5; // 30s = 0.5 min
+  const snap  = (v, lo, hi) => Math.min(hi, Math.max(lo, Math.round(v * 2) / 2));
 
   function set(id, val) {
     const el = $(id); if (!el) return;
@@ -688,22 +841,22 @@ function applyPrecisionToAlgos() {
     const sv = $(id + '_v'); if (sv) sv.textContent = val;
   }
 
-  const base = snap(onDur / d);
+  const base = snap(onDur / d, 0.5, 10);
   if (target === 'all' || target === '0') {
     set('a1on', onDur); set('a1cycle', base);
   }
   if (target === 'all' || target === '1') {
-    set('a2dayOn', onDur); set('a2dayCycle', base);
-    set('a2nightOn', onDur); set('a2nightCycle', Math.min(600, Math.max(60, snap(onDur / d * 0.5))));
+    set('a2dayOn', onDur);   set('a2dayCycle', base);
+    set('a2nightOn', onDur); set('a2nightCycle', snap(onDur / d * 0.5, 0.5, 10));
   }
   if (target === 'all' || target === '2') {
-    set('a3activeOn', onDur); set('a3activeCycle', Math.min(300, Math.max(30, snap(onDur / d * 0.4))));
-    set('a3idleOn', onDur);   set('a3idleCycle', base);
+    set('a3activeOn', onDur); set('a3activeCycle', snap(onDur / d * 0.4, 0.5, 5));
+    set('a3idleOn', onDur);   set('a3idleCycle',   snap(base, 1, 10));
   }
   if (target === 'all' || target === '3') {
-    set('a4fullOn', onDur);  set('a4fullCycle',  Math.min(600, Math.max(30,  snap(onDur / d * 0.5))));
+    set('a4fullOn', onDur);  set('a4fullCycle',  snap(onDur / d * 0.5, 0.5, 10));
     set('a4redOn', onDur);   set('a4redCycle',   base);
-    set('a4critOn', onDur);  set('a4critCycle',  Math.min(600, Math.max(120, snap(onDur / d * 1.5))));
+    set('a4critOn', onDur);  set('a4critCycle',  snap(onDur / d * 1.5, 2, 10));
   }
 }
 
@@ -784,6 +937,9 @@ function recalc() {
 
   // Precision panel
   updateHWImpactPanel();
+
+  // Sleep staging ceiling
+  updateSleepPrecision();
 }
 
 // === Chart drawing ===
