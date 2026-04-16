@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AHT Wearable Biosensor — Battery Calculator</title>
+<style>
+:root {
+  --bg: #f5f7fa; --card: #fff; --border: #e2e8f0; --text: #1a202c; --text2: #4a5568;
+  --green: #38a169; --green-bg: #f0fff4; --yellow: #d69e2e; --yellow-bg: #fffff0;
+  --red: #e53e3e; --red-bg: #fff5f5; --blue: #3182ce; --blue-bg: #ebf8ff;
+  --accent: #4299e1; --radius: 8px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+.container { max-width: 1400px; margin: 0 auto; padding: 16px; }
+h1 { font-size: 1.5rem; margin-bottom: 4px; }
+h1 small { font-size: 0.8rem; color: var(--text2); font-weight: 400; }
+h2 { font-size: 1.1rem; margin-bottom: 12px; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 6px; }
+h3 { font-size: 0.95rem; margin: 12px 0 8px; color: var(--text2); }
+
+.header { background: linear-gradient(135deg, #2d3748, #4a5568); color: #fff; padding: 20px; border-radius: var(--radius); margin-bottom: 16px; }
+.header h1 { color: #fff; } .header small { color: #cbd5e0; }
+
+.grid { display: grid; gap: 16px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+@media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.card.highlight { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+
+.field { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px; flex-wrap: wrap; }
+.field label { font-size: 0.85rem; color: var(--text2); flex: 1; min-width: 150px; }
+.field label .zh { font-size: 0.75rem; color: #a0aec0; display: block; }
+.field input[type="number"] { width: 90px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem; text-align: right; }
+.field input[type="range"] { flex: 1; max-width: 200px; }
+.field .val { font-size: 0.85rem; font-weight: 600; min-width: 70px; text-align: right; }
+.field .unit { font-size: 0.75rem; color: var(--text2); margin-left: 4px; }
+
+.radio-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.radio-group label { font-size: 0.8rem; padding: 6px 12px; border: 1px solid var(--border); border-radius: 20px; cursor: pointer; transition: all 0.15s; }
+.radio-group input { display: none; }
+.radio-group input:checked + label { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.subtotal { background: #edf2f7; padding: 8px 12px; border-radius: 4px; font-weight: 600; text-align: right; margin-top: 8px; font-size: 0.9rem; }
+
+.badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+.badge-pass { background: var(--green-bg); color: var(--green); }
+.badge-warn { background: var(--yellow-bg); color: var(--yellow); }
+.badge-fail { background: var(--red-bg); color: var(--red); }
+
+.result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.result-card { padding: 14px; border-radius: var(--radius); text-align: center; }
+.result-card .label { font-size: 0.75rem; color: var(--text2); margin-bottom: 4px; }
+.result-card .value { font-size: 1.6rem; font-weight: 700; }
+.result-card .unit { font-size: 0.8rem; color: var(--text2); }
+.result-card.pass { background: var(--green-bg); } .result-card.pass .value { color: var(--green); }
+.result-card.warn { background: var(--yellow-bg); } .result-card.warn .value { color: var(--yellow); }
+.result-card.fail { background: var(--red-bg); } .result-card.fail .value { color: var(--red); }
+.result-card.info { background: var(--blue-bg); } .result-card.info .value { color: var(--blue); }
+
+table.comparison { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+table.comparison th, table.comparison td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: right; }
+table.comparison th { background: #edf2f7; font-weight: 600; text-align: center; position: sticky; top: 0; }
+table.comparison td:first-child, table.comparison th:first-child { text-align: left; }
+table.comparison tr.pass td { background: var(--green-bg); }
+table.comparison tr.warn td { background: var(--yellow-bg); }
+table.comparison tr.fail td { background: var(--red-bg); }
+
+.chart-container { width: 100%; height: 300px; position: relative; margin-top: 12px; }
+svg.chart { width: 100%; height: 100%; }
+
+.tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 2px solid var(--border); }
+.tab { padding: 8px 16px; font-size: 0.85rem; cursor: pointer; border: none; background: none; color: var(--text2); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.tab-content { display: none; } .tab-content.active { display: block; }
+
+.algo-card { border-left: 3px solid var(--accent); padding-left: 12px; margin-bottom: 16px; }
+.algo-card h3 { margin-top: 0; }
+
+.note { font-size: 0.75rem; color: var(--text2); padding: 8px; background: #f7fafc; border-radius: 4px; margin-top: 8px; }
+.note::before { content: "※ "; font-weight: 600; }
+
+.section-gap { margin-top: 16px; }
+
+.prec-meter { background: #edf2f7; border-radius: 4px; height: 12px; overflow: hidden; margin: 4px 0 6px; }
+.prec-meter-fill { height: 100%; border-radius: 4px; transition: width 0.3s, background 0.3s; }
+.prec-feasibility { padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; margin-top: 6px; }
+.prec-feasibility.ok { background: var(--green-bg); color: var(--green); }
+.prec-feasibility.warn { background: var(--yellow-bg); color: var(--yellow); }
+.prec-feasibility.bad { background: var(--red-bg); color: var(--red); }
+.prec-apply-btn { margin-top: 10px; padding: 7px 18px; background: var(--accent); color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: opacity 0.15s; }
+.prec-apply-btn:hover { opacity: 0.88; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>AHT Wearable Biosensor — Battery Calculator <small>功耗预算计算器</small></h1>
+  <div style="font-size:0.8rem; margin-top:4px; opacity:0.8;">Based on Power Budget Analysis Report v4 &amp; Apple Watch Scheduling Reference</div>
+</div>
+
+<!-- ===== SYSTEM PARAMETERS ===== -->
+<div class="grid grid-3">
+<div class="card">
+  <h2>System Constraints / 系统约束</h2>
+  <div class="field"><label>Battery Capacity<span class="zh">电池容量</span></label><input type="number" id="battCap" value="50" min="1" max="500" step="1"><span class="unit">mAh</span></div>
+  <div class="field"><label>Derating Factor<span class="zh">降额系数</span></label><input type="number" id="derating" value="0.8" min="0.1" max="1" step="0.05"></div>
+  <div class="field"><label>Target Battery Life<span class="zh">目标续航</span></label><input type="number" id="targetDays" value="15" min="1" max="60" step="1"><span class="unit">days</span></div>
+  <div class="field"><label>Supply Voltage<span class="zh">供电电压</span></label><input type="number" id="voltage" value="2.95" min="1" max="5" step="0.05"><span class="unit">V</span></div>
+  <div class="field"><label>Daytime Hours<span class="zh">白天时长</span></label><input type="number" id="dayHours" value="16" min="0" max="24" step="1"><span class="unit">hr</span></div>
+  <div class="field"><label>Nighttime Hours<span class="zh">夜间时长</span></label><input type="number" id="nightHours" value="8" min="0" max="24" step="1" readonly><span class="unit">hr</span></div>
+  <div class="subtotal">Usable: <span id="usableCap">40.0</span> mAh &nbsp;|&nbsp; Budget: <span id="budgetUA">111.1</span> µA</div>
+</div>
+
+<!-- FIXED MODULES -->
+<div class="card">
+  <h2>Fixed Always-On Modules / 固定功耗</h2>
+  <div class="field"><label>System ON idle<span class="zh">裸机睡眠底电流</span></label><input type="number" id="fSysIdle" value="1.5" min="0" max="50" step="0.1"><span class="unit">µA</span></div>
+  <div class="field"><label>RAM retention (14 banks)<span class="zh">RAM保持</span></label><input type="number" id="fRAM" value="10.5" min="0" max="50" step="0.5"><span class="unit">µA</span></div>
+  <div class="field"><label>Radio TX (0 dBm, CI=1s)<span class="zh">蓝牙发射</span></label><input type="number" id="fRadioTX" value="0.78" min="0" max="10" step="0.01"><span class="unit">µA</span></div>
+  <div class="field"><label>Radio RX<span class="zh">蓝牙接收</span></label><input type="number" id="fRadioRX" value="0.44" min="0" max="10" step="0.01"><span class="unit">µA</span></div>
+  <div class="field"><label>Algo Execution<span class="zh">算法执行</span></label><input type="number" id="fAlgo" value="0.83" min="0" max="20" step="0.01"><span class="unit">µA</span></div>
+  <div class="field"><label>Glucose AFE<span class="zh">血糖AFE</span></label><input type="number" id="fGlucose" value="3.5" min="0" max="20" step="0.1"><span class="unit">µA</span></div>
+  <div class="field"><label>NST1002 Temp Sensor<span class="zh">温度传感器</span></label><input type="number" id="fTemp" value="0.96" min="0" max="10" step="0.01"><span class="unit">µA</span></div>
+  <div class="subtotal">Fixed Subtotal: <span id="fixedTotal">18.51</span> µA (<span id="fixedPct">17</span>% of budget)</div>
+</div>
+
+<!-- PPG AFE + ACC -->
+<div class="card">
+  <h2>PPG AFE &amp; ACC / PPG器件 &amp; 加速度计</h2>
+  <h3>PPG AFE Selection / PPG器件选型</h3>
+  <div class="radio-group">
+    <input type="radio" name="afe" id="afe86161" value="86161"><label for="afe86161">MAXM86161 (600 µA)</label>
+    <input type="radio" name="afe" id="afe86174" value="86174" checked><label for="afe86174">MAX86174A (~20 µA)</label>
+    <input type="radio" name="afe" id="afeCustom" value="custom"><label for="afeCustom">Custom</label>
+  </div>
+  <div class="field"><label>AFE Current<span class="zh">AFE电流</span></label><input type="number" id="afeCurrent" value="20" min="0" max="1000" step="1"><span class="unit">µA</span></div>
+  <div class="field"><label>LED Average<span class="zh">LED平均电流</span></label><input type="number" id="ledAvg" value="52.65" min="0" max="500" step="0.1"><span class="unit">µA</span></div>
+  <h3>86174A LED Mode / LED模式</h3>
+  <div class="radio-group">
+    <input type="radio" name="ledMode" id="ledMode1" value="mode1"><label for="ledMode1">Mode 1: LED Always-On</label>
+    <input type="radio" name="ledMode" id="ledMode2" value="mode2" checked><label for="ledMode2">Mode 2: LED Windowed</label>
+  </div>
+  <div class="note" id="afeNote">MAX86174A Mode 2: AFE always-on (~20 µA), LED duty-cycled. MAXM86161: entire PPG subsystem duty-cycled together.</div>
+
+  <h3>ACC Mode / 加速度计方案</h3>
+  <div class="radio-group">
+    <input type="radio" name="acc" id="accA" value="A"><label for="accA">A: PPG-synced (0 µA)</label>
+    <input type="radio" name="acc" id="accB" value="B"><label for="accB">B: LP 50 Hz (+3 µA)</label>
+    <input type="radio" name="acc" id="accC" value="C"><label for="accC">C: HP 50 Hz (+90 µA)</label>
+    <input type="radio" name="acc" id="accD" value="D" checked><label for="accD">D: LP 12.5 Hz (+1 µA)</label>
+  </div>
+  <div class="subtotal">ACC Delta: <span id="accDelta">+1</span> µA &nbsp;|&nbsp; PPG Active: <span id="ppgActive">72.65</span> µA</div>
+</div>
+</div>
+
+<!-- ===== PRECISION CONTROL ===== -->
+<div class="card section-gap">
+  <h2>Precision &amp; Auto-Tune / 精度与自动调优</h2>
+  <div class="grid grid-2">
+    <div>
+      <h3>Precision Level / 采样精度等级</h3>
+      <div class="radio-group">
+        <input type="radio" name="precision" id="precUltraLow" value="0"><label for="precUltraLow">Ultra-Low<span style="font-size:0.65rem;display:block;">Max Battery</span></label>
+        <input type="radio" name="precision" id="precLow" value="1"><label for="precLow">Low</label>
+        <input type="radio" name="precision" id="precMed" value="2" checked><label for="precMed">Medium</label>
+        <input type="radio" name="precision" id="precHigh" value="3"><label for="precHigh">High</label>
+        <input type="radio" name="precision" id="precUltraHigh" value="4"><label for="precUltraHigh">Ultra-High<span style="font-size:0.65rem;display:block;">Max Data</span></label>
+      </div>
+      <div class="field" style="margin-top:8px;">
+        <label>Auto-Tune to Budget<span class="zh">自动调优至预算</span></label>
+        <input type="checkbox" id="autoTune" style="width:auto;margin-right:6px;">
+        <span style="font-size:0.78rem;color:var(--text2);">Use max affordable duty</span>
+      </div>
+      <div class="field">
+        <label>Apply to Algorithm<span class="zh">应用至算法</span></label>
+        <select id="precisionTarget" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;">
+          <option value="all">All Algorithms</option>
+          <option value="0">Algo 1: Fixed</option>
+          <option value="1">Algo 2: Day/Night</option>
+          <option value="2">Algo 3: Activity</option>
+          <option value="3">Algo 4: Battery-Aware</option>
+        </select>
+      </div>
+      <button class="prec-apply-btn" id="applyPrecBtn">Apply Precision to Algorithms / 应用精度设置</button>
+      <div class="note" style="margin-top:8px;">ON duration is fixed at 30 s for signal quality; only cycle interval is scaled.</div>
+    </div>
+    <div>
+      <h3>Hardware Impact / 硬件影响分析</h3>
+      <div id="hwImpactPanel"><em style="font-size:0.82rem;color:var(--text2);">Loading…</em></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TABS FOR ALGORITHMS ===== -->
+<div class="card section-gap">
+<div class="tabs">
+  <button class="tab active" data-tab="tab-algo1">Algo 1: Fixed<span style="font-size:0.7rem;display:block;">固定间隔</span></button>
+  <button class="tab" data-tab="tab-algo2">Algo 2: Day/Night<span style="font-size:0.7rem;display:block;">昼夜自适应</span></button>
+  <button class="tab" data-tab="tab-algo3">Algo 3: Activity<span style="font-size:0.7rem;display:block;">活动感知</span></button>
+  <button class="tab" data-tab="tab-algo4">Algo 4: Battery-Aware<span style="font-size:0.7rem;display:block;">电量感知</span></button>
+</div>
+
+<!-- ALGO 1 -->
+<div class="tab-content active" id="tab-algo1">
+  <div class="algo-card">
+    <h3>Algorithm 1: Fixed Interval Sampling / 固定间隔采样</h3>
+    <p style="font-size:0.82rem;color:var(--text2);margin-bottom:12px;">Constant duty cycle — same sampling rate day and night. Simplest firmware logic.</p>
+    <div class="grid grid-2">
+      <div>
+        <div class="field"><label>PPG ON Duration<span class="zh">采集时长</span></label><input type="range" id="a1on" min="10" max="120" value="60" step="5"><span class="val" id="a1on_v">60</span><span class="unit">s</span></div>
+        <div class="field"><label>Cycle Interval<span class="zh">采集间隔</span></label><input type="range" id="a1cycle" min="30" max="600" value="300" step="30"><span class="val" id="a1cycle_v">300</span><span class="unit">s</span></div>
+        <div class="field"><label>Continuous Mode<span class="zh">连续模式</span></label><input type="checkbox" id="a1cont"><span class="val">LED always-on</span></div>
+      </div>
+      <div>
+        <div class="subtotal">Duty Cycle: <span id="a1duty">20.0</span>%</div>
+        <div class="note">Assumption: PPG AFE follows the same schedule. For MAXM86161, AFE is always-on regardless.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ALGO 2 -->
+<div class="tab-content" id="tab-algo2">
+  <div class="algo-card">
+    <h3>Algorithm 2: Day/Night Adaptive / 昼夜自适应采样</h3>
+    <p style="font-size:0.82rem;color:var(--text2);margin-bottom:12px;">Different sampling rates for day vs night. Inspired by Apple Watch background HR (5-min cadence when still, increased at night for sleep tracking).</p>
+    <div class="grid grid-2">
+      <div>
+        <h3>Daytime / 白天</h3>
+        <div class="field"><label>ON Duration</label><input type="range" id="a2dayOn" min="10" max="120" value="60" step="5"><span class="val" id="a2dayOn_v">60</span><span class="unit">s</span></div>
+        <div class="field"><label>Cycle Interval</label><input type="range" id="a2dayCycle" min="30" max="600" value="300" step="30"><span class="val" id="a2dayCycle_v">300</span><span class="unit">s</span></div>
+        <div class="field"><label>Continuous</label><input type="checkbox" id="a2dayCont"></div>
+      </div>
+      <div>
+        <h3>Nighttime / 夜间</h3>
+        <div class="field"><label>ON Duration</label><input type="range" id="a2nightOn" min="10" max="120" value="60" step="5"><span class="val" id="a2nightOn_v">60</span><span class="unit">s</span></div>
+        <div class="field"><label>Cycle Interval</label><input type="range" id="a2nightCycle" min="30" max="600" value="120" step="30"><span class="val" id="a2nightCycle_v">120</span><span class="unit">s</span></div>
+        <div class="field"><label>Continuous</label><input type="checkbox" id="a2nightCont"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ALGO 3 -->
+<div class="tab-content" id="tab-algo3">
+  <div class="algo-card">
+    <h3>Algorithm 3: Activity-Aware Adaptive / 活动感知自适应</h3>
+    <p style="font-size:0.82rem;color:var(--text2);margin-bottom:12px;">Increase sampling during detected activity (walking, exercise), reduce when idle. Like Apple Watch foreground (5s) vs background (5min) HR.</p>
+    <div class="grid grid-2">
+      <div>
+        <h3>Active State / 活动状态</h3>
+        <div class="field"><label>ON Duration</label><input type="range" id="a3activeOn" min="10" max="120" value="60" step="5"><span class="val" id="a3activeOn_v">60</span><span class="unit">s</span></div>
+        <div class="field"><label>Cycle Interval</label><input type="range" id="a3activeCycle" min="30" max="300" value="120" step="30"><span class="val" id="a3activeCycle_v">120</span><span class="unit">s</span></div>
+        <div class="field"><label>Continuous during activity</label><input type="checkbox" id="a3activeCont"></div>
+      </div>
+      <div>
+        <h3>Idle State / 静止状态</h3>
+        <div class="field"><label>ON Duration</label><input type="range" id="a3idleOn" min="10" max="120" value="30" step="5"><span class="val" id="a3idleOn_v">30</span><span class="unit">s</span></div>
+        <div class="field"><label>Cycle Interval</label><input type="range" id="a3idleCycle" min="60" max="600" value="300" step="30"><span class="val" id="a3idleCycle_v">300</span><span class="unit">s</span></div>
+      </div>
+    </div>
+    <h3>Activity Profile / 活动比例</h3>
+    <div class="grid grid-2">
+      <div class="field"><label>Daytime Active %<span class="zh">白天活动比例</span></label><input type="range" id="a3dayActive" min="0" max="100" value="30" step="5"><span class="val" id="a3dayActive_v">30</span><span class="unit">%</span></div>
+      <div class="field"><label>Nighttime Active %<span class="zh">夜间活动比例</span></label><input type="range" id="a3nightActive" min="0" max="100" value="5" step="5"><span class="val" id="a3nightActive_v">5</span><span class="unit">%</span></div>
+    </div>
+    <div class="note">Assumption: Activity detection uses ACC always-on (Mode B/D). Active % represents fraction of time user is moving (walking, exercise).</div>
+  </div>
+</div>
+
+<!-- ALGO 4 -->
+<div class="tab-content" id="tab-algo4">
+  <div class="algo-card">
+    <h3>Algorithm 4: Battery-Aware Degradation / 电量感知降频</h3>
+    <p style="font-size:0.82rem;color:var(--text2);margin-bottom:12px;">Reduce sampling frequency as battery depletes. Like Apple Watch Low Power Mode — extends runtime by trading data density.</p>
+    <div class="grid grid-3">
+      <div>
+        <h3>Full Power (100%→T1)</h3>
+        <div class="field"><label>Threshold<span class="zh">阈值</span></label><input type="number" id="a4t1" value="50" min="10" max="90" step="5"><span class="unit">%</span></div>
+        <div class="field"><label>ON Duration</label><input type="range" id="a4fullOn" min="10" max="120" value="60" step="5"><span class="val" id="a4fullOn_v">60</span><span class="unit">s</span></div>
+        <div class="field"><label>Cycle Interval</label><input type="range" id="a4fullCycle" min="30" max="600" value="180" step="30"><span class="val" id="a4fullCycle_v">180</span><span class="unit">s</span></div>
+      </div>
+      <div>
+        <h3>Reduced (T1→T2)</h3>
+        <div class="field"><label>Threshold<span class="zh">阈值</span></label><input type="number" id="a4t2" value="20" min="5" max="80" step="5"><span class="unit">%</span></div>
+        <div class="field"><label>ON Duration</label><input type="range" id="a4redOn" min="10" max="120" value="30" step="5"><span class="val" id="a4redOn_v">30</span><span class="unit">s</span></div>
+        <div class="field"><label>Cycle Interval</label><input type="range" id="a4redCycle" min="60" max="600" value="300" step="30"><span class="val" id="a4redCycle_v">300</span><span class="unit">s</span></div>
+      </div>
+      <div>
+        <h3>Critical (&lt;T2)</h3>
+        <div class="field"><label>ON Duration</label><input type="range" id="a4critOn" min="10" max="120" value="30" step="5"><span class="val" id="a4critOn_v">30</span><span class="unit">s</span></div>
+        <div class="field"><label>Cycle Interval</label><input type="range" id="a4critCycle" min="120" max="600" value="600" step="30"><span class="val" id="a4critCycle_v">600</span><span class="unit">s</span></div>
+      </div>
+    </div>
+    <div class="note">Battery-aware mode uses Day/Night Algo 2 settings as base, then scales down cycle interval at each tier. The chart below shows the depletion curve.</div>
+  </div>
+</div>
+</div><!-- /tabs card -->
+
+<!-- ===== RESULTS ===== -->
+<div class="card section-gap">
+  <h2>Results Dashboard / 结果总览</h2>
+  <div class="result-grid" id="resultCards"></div>
+</div>
+
+<div class="card section-gap">
+  <h2>Algorithm Comparison / 算法对比</h2>
+  <div style="overflow-x:auto;">
+  <table class="comparison" id="compTable">
+    <thead>
+      <tr>
+        <th>Algorithm / 算法</th>
+        <th>Day Avg / 白天<br>(µA)</th>
+        <th>Night Avg / 夜间<br>(µA)</th>
+        <th>24hr Weighted<br>(µA)</th>
+        <th>vs Budget<br>(µA)</th>
+        <th>Daily Use<br>(mAh)</th>
+        <th>Battery Life<br>(days)</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="compBody"></tbody>
+  </table>
+  </div>
+</div>
+
+<div class="card section-gap">
+  <h2>Battery Depletion Chart / 电量消耗曲线</h2>
+  <div class="chart-container">
+    <svg id="depletionChart" class="chart" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+  <div id="chartLegend" style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;font-size:0.8rem;"></div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// === DOM helpers ===
+const $ = id => document.getElementById(id);
+const $v = id => parseFloat($(id).value);
+const $c = id => $(id).checked;
+
+// === Slider value display sync ===
+document.querySelectorAll('input[type="range"]').forEach(slider => {
+  const vSpan = $(slider.id + '_v');
+  if (vSpan) {
+    slider.addEventListener('input', () => { vSpan.textContent = slider.value; recalc(); });
+  }
+});
+
+// === AFE radio handling ===
+document.querySelectorAll('input[name="afe"]').forEach(r => {
+  r.addEventListener('change', () => {
+    if (r.value === '86161') { $('afeCurrent').value = 600; }
+    else if (r.value === '86174') { $('afeCurrent').value = 20; }
+    updateAFENote();
+    recalc();
+  });
+});
+
+// === LED Mode radio handling ===
+document.querySelectorAll('input[name="ledMode"]').forEach(r => {
+  r.addEventListener('change', () => { updateAFENote(); recalc(); });
+});
+
+function isLEDContinuous() {
+  const afe = document.querySelector('input[name="afe"]:checked');
+  const ledMode = document.querySelector('input[name="ledMode"]:checked');
+  return afe && afe.value === '86174' && ledMode && ledMode.value === 'mode1';
+}
+
+function updateAFENote() {
+  const afe = document.querySelector('input[name="afe"]:checked');
+  const ledMode = document.querySelector('input[name="ledMode"]:checked');
+  const note = $('afeNote');
+  if (afe && afe.value === '86174') {
+    if (ledMode && ledMode.value === 'mode1') {
+      note.textContent = 'Mode 1: AFE + LED always-on. Continuous PPG data, simplest firmware. No duty-cycle control needed.';
+    } else {
+      note.textContent = 'Mode 2: AFE always-on (~20 µA), LED duty-cycled per sampling window. Flexible power control.';
+    }
+  } else if (afe && afe.value === '86161') {
+    note.textContent = 'MAXM86161: Entire PPG subsystem (AFE 600 µA + LED) powers on/off together during sampling windows.';
+  } else {
+    note.textContent = 'Custom AFE: duty-cycling behavior follows MAXM86161 model (AFE+LED together).';
+  }
+}
+
+// === Tab switching ===
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    $(tab.dataset.tab).classList.add('active');
+  });
+});
+
+// === Auto-recalc on any input change ===
+document.querySelectorAll('input').forEach(input => {
+  input.addEventListener('input', recalc);
+  input.addEventListener('change', recalc);
+});
+
+// === Night hours sync ===
+$('dayHours').addEventListener('input', () => {
+  $('nightHours').value = 24 - $v('dayHours');
+  recalc();
+});
+
+// === Core calculation ===
+function getFixedTotal() {
+  return $v('fSysIdle') + $v('fRAM') + $v('fRadioTX') + $v('fRadioRX') + $v('fAlgo') + $v('fGlucose') + $v('fTemp');
+}
+
+function getACCDelta() {
+  const mode = document.querySelector('input[name="acc"]:checked').value;
+  return { A: 0, B: 3, C: 90, D: 1 }[mode];
+}
+
+function getPPGActiveCurrent() {
+  return $v('afeCurrent') + $v('ledAvg');
+}
+
+function getAFEAlwaysOn() {
+  // MAXM86161 must stay powered always; MAX86174A also stays on in both modes
+  return $v('afeCurrent');
+}
+
+function isMAXM86161() {
+  const sel = document.querySelector('input[name="afe"]:checked');
+  return sel && sel.value === '86161';
+}
+
+function calcPPGAvg(onDur, cycleDur, continuous) {
+  const afeI = $v('afeCurrent');
+  const ledI = $v('ledAvg');
+  const afeMode = document.querySelector('input[name="afe"]:checked');
+  const is86174 = afeMode && afeMode.value === '86174';
+
+  // Override continuous if LED Mode 1 is selected for MAX86174A
+  const forceContinuous = isLEDContinuous();
+  const isCont = continuous || forceContinuous;
+
+  if (is86174) {
+    // MAX86174A: AFE always-on at ~20 µA; LED duty-cycled (Mode 2) or always-on (Mode 1)
+    if (isCont) return afeI + ledI;
+    const duty = onDur / cycleDur;
+    return afeI + ledI * duty;
+  } else {
+    // MAXM86161 or custom: entire PPG subsystem (AFE+LED) duty-cycled together
+    const ppgActive = afeI + ledI;
+    if (isCont) return ppgActive;
+    const duty = onDur / cycleDur;
+    return ppgActive * duty;
+  }
+}
+
+function calcAvgCurrent(ppgAvgDay, ppgAvgNight) {
+  const fixed = getFixedTotal();
+  const acc = getACCDelta();
+  const dayAvg = fixed + ppgAvgDay + acc;
+  const nightAvg = fixed + ppgAvgNight + acc;
+  const dayH = $v('dayHours');
+  const nightH = 24 - dayH;
+  const weighted = (dayAvg * dayH + nightAvg * nightH) / 24;
+  return { dayAvg, nightAvg, weighted, fixed, acc };
+}
+
+// === Algorithm calculations ===
+function calcAlgo1() {
+  const on = $v('a1on'), cycle = $v('a1cycle'), cont = $c('a1cont');
+  const ppg = calcPPGAvg(on, cycle, cont);
+  return calcAvgCurrent(ppg, ppg);
+}
+
+function calcAlgo2() {
+  const dayPPG = calcPPGAvg($v('a2dayOn'), $v('a2dayCycle'), $c('a2dayCont'));
+  const nightPPG = calcPPGAvg($v('a2nightOn'), $v('a2nightCycle'), $c('a2nightCont'));
+  return calcAvgCurrent(dayPPG, nightPPG);
+}
+
+function calcAlgo3() {
+  const activePPG = calcPPGAvg($v('a3activeOn'), $v('a3activeCycle'), $c('a3activeCont'));
+  const idlePPG = calcPPGAvg($v('a3idleOn'), $v('a3idleCycle'), false);
+  const dayActiveFrac = $v('a3dayActive') / 100;
+  const nightActiveFrac = $v('a3nightActive') / 100;
+  const dayPPG = activePPG * dayActiveFrac + idlePPG * (1 - dayActiveFrac);
+  const nightPPG = activePPG * nightActiveFrac + idlePPG * (1 - nightActiveFrac);
+  return calcAvgCurrent(dayPPG, nightPPG);
+}
+
+function calcAlgo4() {
+  // This algo uses 3 tiers with different duty cycles
+  // We calculate a blended average based on time spent in each tier
+  const usable = $v('battCap') * $v('derating');
+  const t1pct = $v('a4t1') / 100; // e.g. 50%
+  const t2pct = $v('a4t2') / 100; // e.g. 20%
+
+  // Current at each tier (use day/night blended)
+  const dayH = $v('dayHours'), nightH = 24 - dayH;
+
+  function tierAvg(onId, cycleId) {
+    const on = $v(onId), cycle = $v(cycleId);
+    const dayPPG = calcPPGAvg(on, cycle, false);
+    const nightPPG = calcPPGAvg(on, cycle, false);
+    const r = calcAvgCurrent(dayPPG, nightPPG);
+    return r;
+  }
+
+  const full = tierAvg('a4fullOn', 'a4fullCycle');
+  const red = tierAvg('a4redOn', 'a4redCycle');
+  const crit = tierAvg('a4critOn', 'a4critCycle');
+
+  // Simulate depletion to find actual battery life
+  const sim = simulateAlgo4();
+
+  // For the comparison table, show weighted average
+  const totalHours = sim.lifeHours;
+  // Use a simple weighted average of the three tiers
+  const fullFrac = 1 - t1pct; // time from 100% to t1
+  const redFrac = t1pct - t2pct;
+  const critFrac = t2pct;
+  const blendedWeighted = full.weighted * fullFrac + red.weighted * redFrac + crit.weighted * critFrac;
+
+  return {
+    dayAvg: full.dayAvg * fullFrac + red.dayAvg * redFrac + crit.dayAvg * critFrac,
+    nightAvg: full.nightAvg * fullFrac + red.nightAvg * redFrac + crit.nightAvg * critFrac,
+    weighted: blendedWeighted,
+    fixed: full.fixed,
+    acc: full.acc,
+    lifeHours: totalHours
+  };
+}
+
+function simulateAlgo4() {
+  const usable = $v('battCap') * $v('derating'); // mAh
+  const t1pct = $v('a4t1') / 100;
+  const t2pct = $v('a4t2') / 100;
+  const dayH = $v('dayHours');
+
+  function tierCurrent(onId, cycleId) {
+    const on = $v(onId), cycle = $v(cycleId);
+    const dayPPG = calcPPGAvg(on, cycle, false);
+    const nightPPG = calcPPGAvg(on, cycle, false);
+    const r = calcAvgCurrent(dayPPG, nightPPG);
+    return r.weighted; // µA
+  }
+
+  const fullI = tierCurrent('a4fullOn', 'a4fullCycle');
+  const redI = tierCurrent('a4redOn', 'a4redCycle');
+  const critI = tierCurrent('a4critOn', 'a4critCycle');
+
+  // Simulate hour by hour
+  let remaining = usable; // mAh
+  const points = [{ hour: 0, pct: 100 }];
+  let hour = 0;
+  const maxHours = 60 * 24; // 60 days max
+
+  while (remaining > 0 && hour < maxHours) {
+    const pct = remaining / usable;
+    let currentUA;
+    if (pct > t1pct) currentUA = fullI;
+    else if (pct > t2pct) currentUA = redI;
+    else currentUA = critI;
+
+    remaining -= currentUA / 1000; // µA * 1hr = µAh, /1000 = mAh
+    hour++;
+    if (hour % 6 === 0 || remaining <= 0) {
+      points.push({ hour, pct: Math.max(0, remaining / usable * 100) });
+    }
+  }
+
+  return { lifeHours: hour, points };
+}
+
+// === Battery depletion simulation for all algos ===
+function simulateDepletion(avgCurrentUA) {
+  const usable = $v('battCap') * $v('derating');
+  const points = [];
+  let remaining = usable;
+  let hour = 0;
+  const maxHours = 60 * 24;
+  const step = 6;
+  points.push({ hour: 0, pct: 100 });
+  while (remaining > 0 && hour < maxHours) {
+    remaining -= avgCurrentUA / 1000 * step;
+    hour += step;
+    points.push({ hour, pct: Math.max(0, remaining / usable * 100) });
+  }
+  return points;
+}
+
+// === Precision & Auto-Tune ===
+const PRECISION_DUTIES  = [0.05, 0.10, 0.20, 0.33, 0.60];
+const PRECISION_LABELS  = ['Ultra-Low (5%)', 'Low (10%)', 'Medium (20%)', 'High (33%)', 'Ultra-High (60%)'];
+const PRECISION_COLORS  = ['#38a169', '#68d391', '#d69e2e', '#fc8181', '#e53e3e'];
+
+function getHWEfficiencyScore() {
+  const afe = document.querySelector('input[name="afe"]:checked');
+  const acc = document.querySelector('input[name="acc"]:checked');
+  const afeScore = afe ? ({ '86174': 90, '86161': 5, custom: 50 }[afe.value] ?? 50) : 50;
+  const accScore = acc ? ({ A: 100, D: 90, B: 60, C: 0 }[acc.value] ?? 50) : 50;
+  return Math.round(afeScore * 0.75 + accScore * 0.25);
+}
+
+function getMaxAffordableDuty() {
+  const budget   = ($v('battCap') * $v('derating')) / ($v('targetDays') * 24) * 1000;
+  const overhead = getFixedTotal() + getACCDelta();
+  const ppgBudget = budget - overhead;
+  const afeI = $v('afeCurrent'), ledI = $v('ledAvg');
+  const is86174 = document.querySelector('input[name="afe"]:checked')?.value === '86174';
+  let duty;
+  if (is86174) {
+    duty = ppgBudget <= afeI ? 0 : (ppgBudget - afeI) / ledI;
+  } else {
+    duty = ppgBudget <= 0 ? 0 : ppgBudget / (afeI + ledI);
+  }
+  return Math.max(0, Math.min(1, duty));
+}
+
+function updateHWImpactPanel() {
+  const score   = getHWEfficiencyScore();
+  const maxDuty = getMaxAffordableDuty();
+  const afe = document.querySelector('input[name="afe"]:checked');
+  const acc = document.querySelector('input[name="acc"]:checked');
+  const afeLabel = afe ? ({ '86161': 'MAXM86161 (600 µA)', '86174': 'MAX86174A (~20 µA)', custom: 'Custom' }[afe.value] || afe.value) : '—';
+  const accLabel = acc ? ({ A: 'A: PPG-synced', B: 'B: LP 50 Hz', C: 'C: HP 50 Hz', D: 'D: LP 12.5 Hz' }[acc.value] || acc.value) : '—';
+
+  let recLevel = -1;
+  for (let i = PRECISION_DUTIES.length - 1; i >= 0; i--) {
+    if (PRECISION_DUTIES[i] <= maxDuty) { recLevel = i; break; }
+  }
+  const selLevel = parseInt(document.querySelector('input[name="precision"]:checked')?.value ?? 2);
+  const selDuty  = PRECISION_DUTIES[selLevel];
+  const feasible = selDuty <= maxDuty + 0.001;
+  const overshoot = selDuty > maxDuty && maxDuty > 0;
+
+  const scoreColor = score >= 70 ? 'var(--green)' : score >= 40 ? 'var(--yellow)' : 'var(--red)';
+  const feasClass  = feasible ? 'ok' : overshoot ? 'bad' : 'bad';
+  const feasMsg    = feasible
+    ? `✓ ${PRECISION_LABELS[selLevel]} fits within budget`
+    : maxDuty <= 0
+      ? '✗ Fixed overhead exceeds budget — reduce target days or increase battery'
+      : `✗ ${PRECISION_LABELS[selLevel]} exceeds budget (max ${(maxDuty*100).toFixed(1)}%) — lower precision or adjust constraints`;
+
+  const budget = ($v('battCap') * $v('derating')) / ($v('targetDays') * 24) * 1000;
+  const overhead = getFixedTotal() + getACCDelta();
+
+  $('hwImpactPanel').innerHTML = `
+    <div style="font-size:0.8rem;color:var(--text2);margin-bottom:6px;">
+      AFE: <strong>${afeLabel}</strong> &nbsp;|&nbsp; ACC: <strong>${accLabel}</strong>
+    </div>
+    <div style="font-size:0.8rem;margin-bottom:2px;">HW Efficiency Score / 硬件效率:</div>
+    <div class="prec-meter"><div class="prec-meter-fill" style="width:${score}%;background:${scoreColor};"></div></div>
+    <div style="font-size:0.8rem;font-weight:600;color:${scoreColor};margin-bottom:10px;">${score}/100 — ${score >= 70 ? 'Efficient ✓' : score >= 40 ? 'Moderate' : 'Power-Hungry ✗'}</div>
+    <div style="font-size:0.8rem;margin-bottom:2px;">Budget breakdown / 预算分解:</div>
+    <div style="font-size:0.8rem;color:var(--text2);margin-bottom:6px;">
+      Total budget <strong>${budget.toFixed(1)} µA</strong> − Fixed+ACC overhead <strong>${overhead.toFixed(1)} µA</strong>
+      = PPG budget <strong style="color:var(--accent);">${Math.max(0, budget - overhead).toFixed(1)} µA</strong>
+    </div>
+    <div style="font-size:0.8rem;margin-bottom:2px;">Max affordable duty / 最大可用占空比:
+      <strong style="color:var(--accent);">${(maxDuty*100).toFixed(1)}%</strong>
+      &nbsp;→ cycle ≥ <strong>${maxDuty > 0 ? Math.ceil(30/maxDuty) + ' s' : '∞'}</strong>
+    </div>
+    <div style="font-size:0.8rem;margin-bottom:6px;">Recommended precision / 推荐精度:
+      <strong style="color:var(--accent);">${recLevel >= 0 ? PRECISION_LABELS[recLevel] : 'None (over budget)'}</strong>
+    </div>
+    <div class="prec-feasibility ${feasClass}">${feasMsg}</div>
+  `;
+}
+
+function applyPrecisionToAlgos() {
+  const level = parseInt(document.querySelector('input[name="precision"]:checked')?.value ?? 2);
+  const duty  = $c('autoTune') ? getMaxAffordableDuty() : PRECISION_DUTIES[level];
+  const d     = Math.max(0.02, Math.min(1, duty));
+  const target = $('precisionTarget').value;
+  const onDur  = 30;
+  const snap   = v => Math.min(600, Math.max(30, Math.round(v / 30) * 30));
+
+  function set(id, val) {
+    const el = $(id); if (!el) return;
+    el.value = val;
+    const sv = $(id + '_v'); if (sv) sv.textContent = val;
+  }
+
+  const base = snap(onDur / d);
+  if (target === 'all' || target === '0') {
+    set('a1on', onDur); set('a1cycle', base);
+  }
+  if (target === 'all' || target === '1') {
+    set('a2dayOn', onDur); set('a2dayCycle', base);
+    set('a2nightOn', onDur); set('a2nightCycle', Math.min(600, Math.max(60, snap(onDur / d * 0.5))));
+  }
+  if (target === 'all' || target === '2') {
+    set('a3activeOn', onDur); set('a3activeCycle', Math.min(300, Math.max(30, snap(onDur / d * 0.4))));
+    set('a3idleOn', onDur);   set('a3idleCycle', base);
+  }
+  if (target === 'all' || target === '3') {
+    set('a4fullOn', onDur);  set('a4fullCycle',  Math.min(600, Math.max(30,  snap(onDur / d * 0.5))));
+    set('a4redOn', onDur);   set('a4redCycle',   base);
+    set('a4critOn', onDur);  set('a4critCycle',  Math.min(600, Math.max(120, snap(onDur / d * 1.5))));
+  }
+}
+
+// === Main recalculation ===
+function recalc() {
+  // System
+  const usable = $v('battCap') * $v('derating');
+  const targetHours = $v('targetDays') * 24;
+  const budget = usable / targetHours * 1000; // µA
+  $('usableCap').textContent = usable.toFixed(1);
+  $('budgetUA').textContent = budget.toFixed(1);
+
+  // Fixed
+  const fixed = getFixedTotal();
+  $('fixedTotal').textContent = fixed.toFixed(2);
+  $('fixedPct').textContent = Math.round(fixed / budget * 100);
+
+  // ACC & PPG
+  $('accDelta').textContent = '+' + getACCDelta();
+  $('ppgActive').textContent = getPPGActiveCurrent().toFixed(2);
+
+  // Night hours
+  $('nightHours').value = 24 - $v('dayHours');
+
+  // Calculate all algorithms
+  const algos = [
+    { name: 'Algo 1: Fixed Interval / 固定间隔', ...calcAlgo1() },
+    { name: 'Algo 2: Day/Night Adaptive / 昼夜自适应', ...calcAlgo2() },
+    { name: 'Algo 3: Activity-Aware / 活动感知', ...calcAlgo3() },
+    { name: 'Algo 4: Battery-Aware / 电量感知', ...calcAlgo4() },
+  ];
+
+  // Result cards (show Algo 2 as primary since it matches document format)
+  const primary = algos[1];
+  const dailyUse = primary.weighted * 24 / 1000;
+  const life = usable / dailyUse;
+  const margin = budget - primary.weighted;
+  const status = life >= $v('targetDays') * 1.2 ? 'pass' : life >= $v('targetDays') ? 'warn' : 'fail';
+
+  $('resultCards').innerHTML = `
+    <div class="result-card info"><div class="label">Fixed Modules / 固定功耗</div><div class="value">${fixed.toFixed(1)}<span class="unit"> µA</span></div></div>
+    <div class="result-card info"><div class="label">Day Average / 白天平均</div><div class="value">${primary.dayAvg.toFixed(1)}<span class="unit"> µA</span></div></div>
+    <div class="result-card info"><div class="label">Night Average / 夜间平均</div><div class="value">${primary.nightAvg.toFixed(1)}<span class="unit"> µA</span></div></div>
+    <div class="result-card ${status}"><div class="label">24hr Weighted / 加权平均</div><div class="value">${primary.weighted.toFixed(1)}<span class="unit"> µA</span></div></div>
+    <div class="result-card ${margin >= 0 ? 'pass' : 'fail'}"><div class="label">Budget Margin / 余量</div><div class="value">${margin >= 0 ? '+' : ''}${margin.toFixed(1)}<span class="unit"> µA</span></div></div>
+    <div class="result-card info"><div class="label">Daily Use / 日耗电</div><div class="value">${dailyUse.toFixed(2)}<span class="unit"> mAh</span></div></div>
+    <div class="result-card ${status}"><div class="label">Est. Battery Life / 预估续航</div><div class="value">${life.toFixed(1)}<span class="unit"> days</span></div></div>
+    <div class="result-card ${status}"><div class="label">Status / 状态</div><div class="value"><span class="badge badge-${status}">${status === 'pass' ? 'PASS ✓' : status === 'warn' ? 'MARGINAL ⚠' : 'FAIL ✗'}</span></div></div>
+  `;
+
+  // Comparison table
+  let tbody = '';
+  algos.forEach((a, i) => {
+    const du = a.weighted * 24 / 1000;
+    let bl;
+    if (a.lifeHours) {
+      bl = a.lifeHours / 24;
+    } else {
+      bl = usable / du;
+    }
+    const m = budget - a.weighted;
+    const st = bl >= $v('targetDays') * 1.2 ? 'pass' : bl >= $v('targetDays') ? 'warn' : 'fail';
+    tbody += `<tr class="${st}">
+      <td>${a.name}</td>
+      <td>${a.dayAvg.toFixed(1)}</td>
+      <td>${a.nightAvg.toFixed(1)}</td>
+      <td>${a.weighted.toFixed(1)}</td>
+      <td>${m >= 0 ? '+' : ''}${m.toFixed(1)}</td>
+      <td>${du.toFixed(2)}</td>
+      <td>${bl.toFixed(1)}</td>
+      <td><span class="badge badge-${st}">${st === 'pass' ? '✓ Pass' : st === 'warn' ? '⚠ Marginal' : '✗ Fail'}</span></td>
+    </tr>`;
+  });
+  $('compBody').innerHTML = tbody;
+
+  // Depletion chart
+  drawChart(algos, budget);
+
+  // Precision panel
+  updateHWImpactPanel();
+}
+
+// === Chart drawing ===
+const COLORS = ['#3182ce', '#38a169', '#d69e2e', '#e53e3e'];
+const ALGO_LABELS = ['Fixed', 'Day/Night', 'Activity', 'Battery-Aware'];
+
+function drawChart(algos, budget) {
+  const svg = $('depletionChart');
+  const W = 800, H = 300;
+  const pad = { l: 55, r: 20, t: 20, b: 40 };
+  const cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
+
+  // Get depletion data
+  const usable = $v('battCap') * $v('derating');
+  const datasets = [];
+
+  for (let i = 0; i < 3; i++) {
+    datasets.push(simulateDepletion(algos[i].weighted));
+  }
+  datasets.push(simulateAlgo4().points);
+
+  // Find max hours
+  const maxH = Math.max(...datasets.map(d => d[d.length - 1].hour), $v('targetDays') * 24);
+  const maxDays = Math.ceil(maxH / 24);
+
+  function x(hour) { return pad.l + (hour / (maxDays * 24)) * cw; }
+  function y(pct) { return pad.t + (1 - pct / 100) * ch; }
+
+  let html = '';
+
+  // Grid
+  for (let d = 0; d <= maxDays; d += Math.max(1, Math.floor(maxDays / 10))) {
+    const xp = x(d * 24);
+    html += `<line x1="${xp}" y1="${pad.t}" x2="${xp}" y2="${H - pad.b}" stroke="#e2e8f0" stroke-width="0.5"/>`;
+    html += `<text x="${xp}" y="${H - pad.b + 16}" text-anchor="middle" font-size="10" fill="#718096">${d}d</text>`;
+  }
+  for (let p = 0; p <= 100; p += 20) {
+    const yp = y(p);
+    html += `<line x1="${pad.l}" y1="${yp}" x2="${W - pad.r}" y2="${yp}" stroke="#e2e8f0" stroke-width="0.5"/>`;
+    html += `<text x="${pad.l - 8}" y="${yp + 4}" text-anchor="end" font-size="10" fill="#718096">${p}%</text>`;
+  }
+
+  // Target line
+  const tx = x($v('targetDays') * 24);
+  html += `<line x1="${tx}" y1="${pad.t}" x2="${tx}" y2="${H - pad.b}" stroke="#e53e3e" stroke-width="1" stroke-dasharray="4,4"/>`;
+  html += `<text x="${tx}" y="${pad.t - 4}" text-anchor="middle" font-size="9" fill="#e53e3e">${$v('targetDays')}d target</text>`;
+
+  // Lines
+  datasets.forEach((data, i) => {
+    const pts = data.map(p => `${x(p.hour).toFixed(1)},${y(p.pct).toFixed(1)}`).join(' ');
+    html += `<polyline points="${pts}" fill="none" stroke="${COLORS[i]}" stroke-width="2" stroke-linejoin="round"/>`;
+  });
+
+  // Axes
+  html += `<line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${H - pad.b}" stroke="#4a5568" stroke-width="1"/>`;
+  html += `<line x1="${pad.l}" y1="${H - pad.b}" x2="${W - pad.r}" y2="${H - pad.b}" stroke="#4a5568" stroke-width="1"/>`;
+  html += `<text x="${pad.l - 35}" y="${H / 2}" text-anchor="middle" font-size="11" fill="#4a5568" transform="rotate(-90,${pad.l - 35},${H / 2})">Battery %</text>`;
+  html += `<text x="${W / 2}" y="${H - 4}" text-anchor="middle" font-size="11" fill="#4a5568">Time (days)</text>`;
+
+  svg.innerHTML = html;
+
+  // Legend
+  $('chartLegend').innerHTML = ALGO_LABELS.map((l, i) =>
+    `<span style="display:flex;align-items:center;gap:4px;"><span style="width:16px;height:3px;background:${COLORS[i]};display:inline-block;border-radius:2px;"></span>${l}</span>`
+  ).join('');
+}
+
+// Precision controls
+document.querySelectorAll('input[name="precision"]').forEach(r => r.addEventListener('change', recalc));
+$('autoTune').addEventListener('change', recalc);
+$('precisionTarget').addEventListener('change', recalc);
+$('applyPrecBtn').addEventListener('click', () => { applyPrecisionToAlgos(); recalc(); });
+
+// Initial calculation
+recalc();
+</script>
+</body>
+</html>
