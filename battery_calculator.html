@@ -152,6 +152,7 @@ svg.chart { width: 100%; height: 100%; }
     <input type="radio" name="acc" id="accB" value="B"><label for="accB">B: LP 50 Hz (+3 µA)</label>
     <input type="radio" name="acc" id="accC" value="C"><label for="accC">C: HP 50 Hz (+90 µA)</label>
     <input type="radio" name="acc" id="accD" value="D" checked><label for="accD">D: LP 12.5 Hz (+1 µA)</label>
+    <input type="radio" name="acc" id="accE" value="E"><label for="accE">E: LP2 50 Hz (+7 µA)</label>
   </div>
   <div class="subtotal">ACC Delta: <span id="accDelta">+1</span> µA &nbsp;|&nbsp; PPG Active: <span id="ppgActive">72.65</span> µA</div>
 </div>
@@ -439,7 +440,7 @@ function getFixedTotal() {
 
 function getACCDelta() {
   const mode = document.querySelector('input[name="acc"]:checked').value;
-  return { A: 0, B: 3, C: 90, D: 1 }[mode];
+  return { A: 0, B: 3, C: 90, D: 1, E: 7 }[mode];
 }
 
 function getPPGActiveCurrent() {
@@ -780,7 +781,7 @@ function updateHWImpactPanel() {
   const afe = document.querySelector('input[name="afe"]:checked');
   const acc = document.querySelector('input[name="acc"]:checked');
   const afeLabel = afe ? ({ '86161': 'MAXM86161 (600 µA)', '86174': 'MAX86174A (~20 µA)', custom: 'Custom' }[afe.value] || afe.value) : '—';
-  const accLabel = acc ? ({ A: 'A: PPG-synced', B: 'B: LP 50 Hz', C: 'C: HP 50 Hz', D: 'D: LP 12.5 Hz' }[acc.value] || acc.value) : '—';
+  const accLabel = acc ? ({ A: 'A: PPG-synced', B: 'B: LP 50 Hz', C: 'C: HP 50 Hz', D: 'D: LP 12.5 Hz', E: 'E: LP2 50 Hz' }[acc.value] || acc.value) : '—';
 
   let recLevel = -1;
   for (let i = PRECISION_DUTIES.length - 1; i >= 0; i--) {
